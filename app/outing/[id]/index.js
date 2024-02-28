@@ -27,7 +27,7 @@ function ExpenditureItem(props) {
             </View>
 
             {/* Spent for list */}
-            <View className="flex-row flex-wrap flex-1 gap-[6] p-3 py-6">
+            <View className="flex-row flex-wrap flex-1 gap-[6] p-3 py-7">
                 {props.data.for.map((item, index) => (
                     <View className="flex-row" key={index}>
                         <View
