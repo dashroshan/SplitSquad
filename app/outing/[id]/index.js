@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useState, useEffect } from "react";
-import { Dimensions, Image, ScrollView, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { ScrollView, Text, View } from "react-native";
+import EmptyList from "../../../components/EmptyList";
 import TopBar from "../../../components/TopBar";
 import { getData } from "../../../utils/kvStore";
 
@@ -55,7 +56,6 @@ function ExpenditureItem(props) {
 
 function index(props) {
     const { id } = useLocalSearchParams();
-    const { width } = Dimensions.get("window");
 
     const [details, setDetails] = useState(null);
 
@@ -140,16 +140,7 @@ function index(props) {
                             </View>
                         </View>
 
-                        {details.payments.length === 0 ? (
-                            <Image
-                                source={require("../../../assets/emptyList.jpg")}
-                                style={{
-                                    width,
-                                    height: width * 0.676,
-                                    opacity: 0.3,
-                                }}
-                            />
-                        ) : null}
+                        {details.payments.length === 0 ? <EmptyList /> : null}
 
                         {details.payments.map((item, index) => {
                             return <ExpenditureItem key={index} data={item} />;

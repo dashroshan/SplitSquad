@@ -1,18 +1,15 @@
 import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import {
-    Modal,
-    Pressable,
     ScrollView,
     Text,
     TextInput,
-    View,
     TouchableOpacity,
+    View,
 } from "react-native";
-import TopBar from "../../../../components/TopBar";
-import { AntDesign } from "@expo/vector-icons";
-import { Dropdown, MultiSelect } from "react-native-element-dropdown";
-import { useEffect, useState } from "react";
 import AwesomeAlert from "react-native-awesome-alerts";
+import { Dropdown, MultiSelect } from "react-native-element-dropdown";
+import TopBar from "../../../../components/TopBar";
 import { getData, storeData } from "../../../../utils/kvStore";
 
 function index(props) {

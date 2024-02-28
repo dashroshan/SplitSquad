@@ -1,17 +1,10 @@
-import {
-    FlatList,
-    ScrollView,
-    View,
-    Text,
-    TouchableOpacity,
-    Image,
-    Dimensions,
-} from "react-native";
-import TopBar from "../components/TopBar";
+import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import EmptyList from "../components/EmptyList";
+import TopBar from "../components/TopBar";
 import { getData, removeData, storeData } from "../utils/kvStore";
-import { AntDesign } from "@expo/vector-icons";
 
 function OutingItem(props) {
     let mb = props.isLast ? "mb-3" : "mb-0"; // Last item to have 3 bottom margin
@@ -39,7 +32,6 @@ function OutingItem(props) {
 function index(props) {
     const [outings, setOutings] = useState([]);
     const [refreshing, setRefreshing] = useState(true);
-    const { width } = Dimensions.get("window");
 
     // Fetch outings from storage
     const fetchOutings = async () => {
@@ -74,14 +66,7 @@ function index(props) {
             {/* Outings list */}
 
             {outings.length === 0 ? (
-                <Image
-                    source={require("../assets/emptyList.jpg")}
-                    style={{
-                        width,
-                        height: width * 0.676,
-                        opacity: 0.3,
-                    }}
-                />
+                <EmptyList />
             ) : (
                 <View className="flex-1">
                     <FlatList
