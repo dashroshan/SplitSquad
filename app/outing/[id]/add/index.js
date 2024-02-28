@@ -9,9 +9,13 @@ import {
 } from "react-native";
 import TopBar from "../../../../components/TopBar";
 import { AntDesign } from "@expo/vector-icons";
+import { Dropdown } from "react-native-element-dropdown";
+import { useState } from "react";
 
 function index(props) {
     const { id } = useLocalSearchParams();
+
+    const [value, setValue] = useState(null);
 
     return (
         <>
@@ -32,20 +36,39 @@ function index(props) {
                 <Text className="font-semibold text-lg mt-5 mb-3">
                     Spent by
                 </Text>
-                <Pressable onPress={() => console.log("Pressed")}>
-                    <View className="border-black border-2 pl-3 flex-row justify-between items-center">
-                        <Text></Text>
-                        <View className="bg-black p-2 pl-4 pr-3">
-                            <AntDesign
-                                name="caretdown"
-                                size={26}
-                                color="white"
-                            />
-                        </View>
-                    </View>
-                </Pressable>
+
+                <Dropdown
+                    data={["Roshan", "Swoyam", "Soumesh", "Rohan"]}
+                    maxHeight={157}
+                    iconStyle={{ height: 35, tintColor: "black" }}
+                    style={{
+                        borderBottomColor: "black",
+                        borderBottomWidth: 2,
+                    }}
+                    placeholderStyle={{
+                        color: value ? "black" : "lightgray",
+                        fontSize: 14,
+                    }}
+                    placeholder={value || "Select the member who paid"}
+                    value={value || "Select the member who paid"}
+                    onChange={(item) => {
+                        setValue(item);
+                        console.log(item);
+                    }}
+                    renderItem={renderItem}
+                />
             </ScrollView>
         </>
+    );
+}
+
+function renderItem(item) {
+    return (
+        <View className="p-4 px-5 border-b-2">
+            <Text className="text-md" numberOfLines={1}>
+                {item}
+            </Text>
+        </View>
     );
 }
 
