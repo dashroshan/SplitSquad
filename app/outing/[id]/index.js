@@ -4,83 +4,40 @@ import { ScrollView, Text, View } from "react-native";
 import EmptyList from "../../../components/EmptyList";
 import TopBar from "../../../components/TopBar";
 import { getData } from "../../../utils/kvStore";
-
-function ExpenditureItem(props) {
-    return (
-        <View className="bg-white m-3 mt-0 rounded-lg flex-row">
-            {/* Spent by */}
-            <View className="bg-black w-28 p-2 rounded-lg rounded-tr-none rounded-br-none flex items-center justify-center">
-                <Text
-                    className="text-white text-center text-xs font-light"
-                    numberOfLines={2}>
-                    {props.data.description}
-                </Text>
-                <Text
-                    className="text-white font-semibold text-lg"
-                    numberOfLines={1}>
-                    {props.data.amount}
-                </Text>
-                <Text
-                    className="text-white text-xs font-semibold"
-                    numberOfLines={1}>
-                    {props.data.by}
-                </Text>
-            </View>
-
-            {/* Spent for list */}
-            <View className="flex-row flex-wrap flex-1 gap-[6] p-3 py-7">
-                {props.data.for.map((item, index) => (
-                    <View className="flex-row" key={index}>
-                        <View
-                            className="border-2 rounded-full rounded-tr-none rounded-br-none pl-2 pr-1 py-1 flex justify-center"
-                            style={{ maxWidth: 120 }}>
-                            <Text numberOfLines={1} className="text-xs">
-                                {item.name}
-                            </Text>
-                        </View>
-                        <View
-                            className="bg-black rounded-full rounded-tl-none rounded-bl-none pl-1 pr-2 py-1 flex justify-center"
-                            style={{ maxWidth: 70 }}>
-                            <Text
-                                numberOfLines={1}
-                                className="text-xs text-white">
-                                {Math.round(item.amount * 100) / 100}
-                            </Text>
-                        </View>
-                    </View>
-                ))}
-            </View>
-        </View>
-    );
-}
+import { ExpenditureItem } from "./ExpenditureItem";
 
 function index(props) {
     const { id } = useLocalSearchParams();
-
     const [details, setDetails] = useState(null);
 
     const calculateTotals = (details) => {
+        // Calculate total amount paid by each member
         let paidBy = new Map();
         for (let member of details.members) paidBy.set(member, 0);
         for (let payment of details.payments) {
             paidBy.set(payment.by, paidBy.get(payment.by) + payment.amount);
         }
+
+        // Convert this data to {name, amount} format and also calculate total spending
         let totalSpending = 0;
         let spendingByMember = [];
         paidBy.forEach((value, key) => {
             spendingByMember.push({ name: key, amount: value });
             totalSpending += value;
         });
+
         return { totalSpending, spendingByMember };
     };
 
     const fetchOutingDetails = async () => {
+        // Get saved details for the outing and add data of total amount paid by each member to it
         let outingDetails = JSON.parse(await getData(`outing-${id}`));
         let totals = calculateTotals(outingDetails);
         setDetails({ ...outingDetails, ...totals });
     };
 
     useEffect(() => {
+        // Run once on load
         fetchOutingDetails();
     }, [id]);
 
@@ -140,8 +97,10 @@ function index(props) {
                             </View>
                         </View>
 
+                        {/* Show empty list image if no payments data added yet */}
                         {details.payments.length === 0 ? <EmptyList /> : null}
 
+                        {/* Expenditure list */}
                         {details.payments.map((item, index) => {
                             return <ExpenditureItem key={index} data={item} />;
                         })}

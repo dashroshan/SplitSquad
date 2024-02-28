@@ -11,6 +11,7 @@ import TopBar from "../../components/TopBar";
 import AwesomeAlert from "react-native-awesome-alerts";
 import { getData, storeData } from "../../utils/kvStore";
 import { router } from "expo-router";
+import AlertModal from "../../components/AlertModal";
 
 function MemberItem(props) {
     // Handles text change
@@ -151,27 +152,7 @@ function index(props) {
             </ScrollView>
 
             {/* Alert shown while saving for validation errors */}
-            <AwesomeAlert
-                show={alert.visible}
-                showProgress={false}
-                title="Uhh Oh 😶"
-                message={alert.message}
-                closeOnTouchOutside={true}
-                closeOnHardwareBackPress={true}
-                showConfirmButton={true}
-                confirmText="Continue"
-                confirmButtonColor="black"
-                confirmButtonTextStyle={{
-                    fontSize: 16,
-                    margin: 8,
-                    marginHorizontal: 16,
-                    fontWeight: "700",
-                }}
-                confirmButtonStyle={{ borderRadius: 8 }}
-                onConfirmPressed={() =>
-                    setAlert({ visible: false, message: "" })
-                }
-            />
+            <AlertModal alert={alert} setAlert={setAlert} />
         </>
     );
 }

@@ -7,10 +7,11 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import AwesomeAlert from "react-native-awesome-alerts";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
+import AlertModal from "../../../../components/AlertModal";
 import TopBar from "../../../../components/TopBar";
 import { getData, storeData } from "../../../../utils/kvStore";
+import { renderItem } from "./renderItem";
 
 function index(props) {
     const { id } = useLocalSearchParams();
@@ -27,6 +28,7 @@ function index(props) {
     const [alert, setAlert] = useState({ visible: false, message: "" });
     const [members, setMembers] = useState([]);
 
+    // Custom multi-selection box item to highlight selected items black
     const renderMultiSelectItem = (item) => {
         let isSelected = selected.indexOf(item.value) >= 0;
         return (
@@ -62,10 +64,13 @@ function index(props) {
         return "";
     };
 
+    // Save the expenditure data
     const save = async () => {
         let data = { by: value, description };
         let forList = [];
+
         if (equalSplit) {
+            // If split equally selected, divide the amount equally for selected members
             data["amount"] = amount;
             for (let member of selected)
                 forList.push({
@@ -73,6 +78,7 @@ function index(props) {
                     amount: amount / selected.length,
                 });
         } else {
+            // If custom split selected, create the data as given, and calculate amount from it
             let amount = 0;
             Object.entries(customSplitData).forEach(([key, value]) => {
                 forList.push({ name: key, amount: value });
@@ -84,15 +90,18 @@ function index(props) {
 
         let error = getError(data);
         if (error === "") {
+            // If no error, add the expenditure data to the outing data, and go back to outing screen
             let oldData = JSON.parse(await getData(`outing-${id}`));
             oldData.payments.unshift(data);
             await storeData(`outing-${id}`, JSON.stringify(oldData));
             router.navigate(`/outing/${id}`);
         } else {
+            // Show alert for validation errors
             setAlert({ visible: true, message: error });
         }
     };
 
+    // Fetch group member details and load them to the selection boxes
     const fetchMemberDetails = async () => {
         let outingDetails = JSON.parse(await getData(`outing-${id}`));
         let memData = [];
@@ -102,6 +111,7 @@ function index(props) {
     };
 
     useEffect(() => {
+        // Run once on load
         fetchMemberDetails();
     }, [id]);
 
@@ -111,6 +121,7 @@ function index(props) {
             <TopBar title="Add new spending" icon="save" onPress={save} />
 
             <ScrollView className="bg-white m-3 p-7 px-8 rounded-lg">
+                {/* Expenditure name input */}
                 <Text className="font-semibold text-lg">Expenditure name</Text>
                 <TextInput
                     placeholder="Example: Movie tickets and snacks"
@@ -122,6 +133,7 @@ function index(props) {
 
                 {equalSplit ? (
                     <>
+                        {/* Amount input - only shown when split equally selected */}
                         <Text className="font-semibold text-lg mt-5">
                             Amount
                         </Text>
@@ -136,8 +148,8 @@ function index(props) {
                     </>
                 ) : null}
 
+                {/* Paid by selection box input */}
                 <Text className="font-semibold text-lg mt-5 mb-3">Paid by</Text>
-
                 <Dropdown
                     data={members}
                     maxHeight={157}
@@ -161,10 +173,10 @@ function index(props) {
                     renderItem={renderItem}
                 />
 
+                {/* To be split among multi-selection box input */}
                 <Text className="font-semibold text-lg mt-8 mb-3">
                     To be split among
                 </Text>
-
                 <MultiSelect
                     data={members}
                     placeholder={selectedDisplay}
@@ -200,7 +212,9 @@ function index(props) {
                     renderSelectedItem={() => <></>}
                 />
 
+                {/* Split equally and custom split switch */}
                 <View className="flex-row mt-10">
+                    {/* Split equally */}
                     <TouchableOpacity
                         onPress={() => {
                             setEqualSplit(true);
@@ -218,6 +232,8 @@ function index(props) {
                             Split equally
                         </Text>
                     </TouchableOpacity>
+
+                    {/* Custom split */}
                     <TouchableOpacity
                         onPress={() => {
                             let data = {};
@@ -240,11 +256,13 @@ function index(props) {
                 </View>
 
                 {equalSplit ? null : (
+                    // If custom split selected, show amount inputs for individual memebers
                     <View className="flex gap-4 mt-3 mb-20">
                         {selected.map((item) => (
                             <View
                                 className="flex-row items-center justify-between"
                                 key={item}>
+                                {/* Custom split member amount input item */}
                                 <View className="flex-1">
                                     <Text className="pr-5" numberOfLines={1}>
                                         {item}
@@ -269,38 +287,8 @@ function index(props) {
             </ScrollView>
 
             {/* Alert shown while saving for validation errors */}
-            <AwesomeAlert
-                show={alert.visible}
-                showProgress={false}
-                title="Uhh Oh 😶"
-                message={alert.message}
-                closeOnTouchOutside={true}
-                closeOnHardwareBackPress={true}
-                showConfirmButton={true}
-                confirmText="Continue"
-                confirmButtonColor="black"
-                confirmButtonTextStyle={{
-                    fontSize: 16,
-                    margin: 8,
-                    marginHorizontal: 16,
-                    fontWeight: "700",
-                }}
-                confirmButtonStyle={{ borderRadius: 8 }}
-                onConfirmPressed={() =>
-                    setAlert({ visible: false, message: "" })
-                }
-            />
+            <AlertModal alert={alert} setAlert={setAlert} />
         </>
-    );
-}
-
-function renderItem(item) {
-    return (
-        <View className="p-4 px-5 border-b-2">
-            <Text className="text-md" numberOfLines={1}>
-                {item.label}
-            </Text>
-        </View>
     );
 }
 
