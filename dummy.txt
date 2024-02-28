@@ -1,0 +1,31 @@
+let outingDetails = {
+            name: "Puri trip",
+            members: ["Roshan", "Swoyam", "Soumesh", "Rohan"],
+            payments: [
+                {
+                    by: "Roshan",
+                    description: "Movie tickets",
+                    amount: 450,
+                    for: [
+                        { name: "Swoyam", amount: 150 },
+                        { name: "Roshan", amount: 250 },
+                        { name: "Soumesh", amount: 50 },
+                    ],
+                },
+                {
+                    by: "Soumesh",
+                    description: "Food and drinks",
+                    amount: 2000,
+                    for: [
+                        { name: "Rohan", amount: 1800 },
+                        { name: "Soumesh", amount: 200 },
+                    ],
+                },
+                {
+                    by: "Soumesh",
+                    description: "Rides",
+                    amount: 140,
+                    for: [{ name: "Soumesh", amount: 140 }],
+                },
+            ],
+        };
