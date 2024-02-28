@@ -1,11 +1,12 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import EmptyList from "../../../components/EmptyList";
 import TopBar from "../../../components/TopBar";
 import { getData } from "../../../utils/kvStore";
 import { ExpenditureItem } from "./ExpenditureItem";
 import getSettlement from "../../../utils/getSettlement";
+import { AntDesign } from "@expo/vector-icons";
 
 function index(props) {
     const { id } = useLocalSearchParams();
@@ -34,8 +35,16 @@ function index(props) {
         // Get saved details for the outing and add data of total amount paid by each member to it
         let outingDetails = JSON.parse(await getData(`outing-${id}`));
         let totals = calculateTotals(outingDetails);
-        setDetails({ ...outingDetails, ...totals });
-        console.log(getSettlement(outingDetails));
+        let settlements = [];
+
+        if (outingDetails.payments.length > 0)
+            settlements = getSettlement(outingDetails);
+
+        setDetails({
+            ...outingDetails,
+            ...totals,
+            settlements,
+        });
     };
 
     useEffect(() => {
@@ -84,6 +93,47 @@ function index(props) {
                                 <Text>{details.totalSpending}</Text>
                             </View>
                         </View>
+
+                        {details.settlements.length > 0 ? (
+                            <View className="bg-white m-3 mb-0 p-7 px-8 rounded-lg">
+                                <Text className="font-semibold text-lg">
+                                    Payments to settle up
+                                </Text>
+                                <View className="flex-row items-center pb-2 my-2 border-b-2 border-t-2 pt-1">
+                                    <Text className="font-semibold text-sm w-[38%]">
+                                        From
+                                    </Text>
+                                    <Text className="font-semibold text-sm w-[38%]">
+                                        To
+                                    </Text>
+                                    <Text className="font-semibold text-sm w-[24%] text-right">
+                                        Amount
+                                    </Text>
+                                </View>
+                                {details.settlements.map((item, index) => (
+                                    <View
+                                        className="flex-row items-center"
+                                        key={index}>
+                                        <Text
+                                            className="text-sm w-[38%] pr-2"
+                                            numberOfLines={1}>
+                                            {item.from}
+                                        </Text>
+                                        <Text
+                                            className="text-sm w-[38%] pr-2"
+                                            numberOfLines={1}>
+                                            {item.to}
+                                        </Text>
+                                        <Text
+                                            className="text-sm w-[24%] text-right"
+                                            numberOfLines={1}>
+                                            {Math.round(item.amount * 100) /
+                                                100}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
+                        ) : null}
 
                         {/* Expenditure list header */}
                         <View className="bg-black m-3 rounded-lg flex-row">
