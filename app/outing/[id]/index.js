@@ -5,6 +5,7 @@ import EmptyList from "../../../components/EmptyList";
 import TopBar from "../../../components/TopBar";
 import { getData } from "../../../utils/kvStore";
 import { ExpenditureItem } from "./ExpenditureItem";
+import getSettlement from "../../../utils/getSettlement";
 
 function index(props) {
     const { id } = useLocalSearchParams();
@@ -34,6 +35,7 @@ function index(props) {
         let outingDetails = JSON.parse(await getData(`outing-${id}`));
         let totals = calculateTotals(outingDetails);
         setDetails({ ...outingDetails, ...totals });
+        console.log(getSettlement(outingDetails));
     };
 
     useEffect(() => {
