@@ -16,3 +16,11 @@ export const getData = async (key) => {
         console.log("Error getting value: ", error);
     }
 };
+
+export const removeData = async (key) => {
+    try {
+        await AsyncStorage.removeItem(key);
+    } catch (error) {
+        console.log("Error removing value: ", error);
+    }
+};

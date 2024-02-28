@@ -9,17 +9,18 @@ import { AntDesign } from "@expo/vector-icons";
 import { useState } from "react";
 import TopBar from "../../components/TopBar";
 import AwesomeAlert from "react-native-awesome-alerts";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getData, storeData } from "../../utils/kvStore";
 import { router } from "expo-router";
 
 function MemberItem(props) {
+    // Handles text change
     const changeText = (text) => {
         let mem = props.data.members;
         mem[props.index] = text;
         props.setData({ ...props.data, members: mem });
     };
 
+    // Delete the current member input field
     const deleteSelf = () => {
         let mem = props.data.members;
         delete mem[props.index];
@@ -28,6 +29,7 @@ function MemberItem(props) {
 
     return (
         <View className="flex-row items-end my-2">
+            {/* Member name input */}
             <TextInput
                 placeholder="Member name"
                 cursorColor="black"
@@ -36,6 +38,8 @@ function MemberItem(props) {
                 placeholderTextColor="lightgray"
                 className="border-gray-900 border-b-2 pb-1 flex-1"
             />
+
+            {/* Delete button */}
             <TouchableOpacity
                 onPress={deleteSelf}
                 className="bg-black p-3 rounded-lg rounded-bl-none"
@@ -52,12 +56,14 @@ function index(props) {
     });
     const [alert, setAlert] = useState({ visible: false, message: "" });
 
+    // Add a new member input field
     const addMember = () => {
         let mem = data.members;
         mem.push("");
         setData({ ...data, members: mem });
     };
 
+    // Validates all input data and returns error messages
     const getError = (name, members) => {
         if (name === "") return "Outing name cannot be empty";
         else if (members.length < 2)
@@ -73,23 +79,31 @@ function index(props) {
         return "";
     };
 
+    // Save the outing and return back to home screen
     const save = async () => {
         let name = data.name;
-        let members = data.members.filter((item) => item !== undefined);
+        let members = data.members.filter((item) => item !== undefined); // remove all deleted elements from list
 
         let error = getError(name, members);
         if (error === "") {
-            let id = (Math.random() + 1).toString(36).substring(2);
-            let newOutingData = { id, name, members };
+            // On all valid inputs
+            let id = (Math.random() + 1).toString(36).substring(2); // generate a random string for id
+            let newOutingData = { id, name };
+            let outingDetails = { name, members, payments: [] };
 
+            // Get old saved data
             let oldData = await getData("outingData");
             let outingData = [];
             if (oldData !== null) outingData = JSON.parse(oldData);
 
+            // Add new outing and save this new data
             outingData.unshift(newOutingData);
             await storeData("outingData", JSON.stringify(outingData));
+            await storeData(`outing-${id}`, JSON.stringify(outingDetails));
+
             router.navigate("/");
         } else {
+            // On some invalid inputs show the alert dialog
             setAlert({ visible: true, message: error });
         }
     };
@@ -97,7 +111,7 @@ function index(props) {
     return (
         <>
             {/* Top bar */}
-            <TopBar icon="save" onPress={save} />
+            <TopBar title="Add new outing" icon="save" onPress={save} />
 
             <ScrollView className="bg-white m-3 p-7 px-8 rounded-lg">
                 {/* Outing name */}
