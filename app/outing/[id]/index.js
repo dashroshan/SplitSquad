@@ -20,7 +20,7 @@ function ExpenditureItem(props) {
                     {props.data.amount}
                 </Text>
                 <Text
-                    className="text-white text-xs font-light"
+                    className="text-white text-xs font-semibold"
                     numberOfLines={1}>
                     {props.data.by}
                 </Text>
@@ -146,9 +146,9 @@ function index(props) {
                             </View>
                         ))}
 
-                        {/* Total expenditure */}
+                        {/* Total spending */}
                         <View className="flex-row items-center justify-between pt-2 mt-2 border-t-2">
-                            <Text>Total expenditure</Text>
+                            <Text>Total spending</Text>
                             <Text>{details.totalSpending}</Text>
                         </View>
                     </View>
@@ -157,12 +157,12 @@ function index(props) {
                     <View className="bg-black m-3 mb-0 rounded-lg flex-row">
                         <View className="w-28 p-2 flex items-center justify-center">
                             <Text className="text-white font-semibold">
-                                Paid by
+                                Spending
                             </Text>
                         </View>
                         <View className="flex-row flex-1 p-3 border-l-2 border-white">
                             <Text className="text-white font-semibold">
-                                Paid for
+                                Spent for
                             </Text>
                         </View>
                     </View>
