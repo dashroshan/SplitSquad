@@ -13,11 +13,30 @@ import { AntDesign } from "@expo/vector-icons";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 import { useState } from "react";
 
+const data = [
+    { label: "Roshan", value: "Roshan" },
+    { label: "Swoyam", value: "Swoyam" },
+    { label: "Rohan", value: "Rohan" },
+    { label: "Soumesh", value: "Soumesh" },
+    { label: "Shreeya", value: "Shreeya" },
+    { label: "Rishabh", value: "Rishabh" },
+    { label: "1Roshan", value: "1Roshan" },
+    { label: "1Swoyam", value: "1Swoyam" },
+    { label: "1Rohan", value: "1Rohan" },
+    { label: "1Soumesh", value: "1Soumesh" },
+    { label: "1Shreeya", value: "1Shreeya" },
+    { label: "1Rishabh", value: "1Rishabh" },
+];
+
 function index(props) {
     const { id } = useLocalSearchParams();
 
     const [value, setValue] = useState();
     const [selected, setSelected] = useState([]);
+    const [selectedDisplay, setSelectedDisplay] = useState(
+        "Select the members paid for"
+    );
+    const [equalSplit, setEqualSplit] = useState(true);
 
     const renderMultiSelectItem = (item) => {
         let isSelected = selected.indexOf(item.value) >= 0;
@@ -49,28 +68,25 @@ function index(props) {
                     className="border-black border-b-2 pb-1 my-3"
                 />
 
-                <Text className="font-semibold text-lg mt-5">Amount</Text>
-                <TextInput
-                    placeholder="Example: 500"
-                    cursorColor="black"
-                    placeholderTextColor="lightgray"
-                    className="border-black border-b-2 pb-1 my-3"
-                    inputMode="decimal"
-                />
+                {equalSplit ? (
+                    <>
+                        <Text className="font-semibold text-lg mt-5">
+                            Amount
+                        </Text>
+                        <TextInput
+                            placeholder="Example: 500"
+                            cursorColor="black"
+                            placeholderTextColor="lightgray"
+                            className="border-black border-b-2 pb-1 my-3"
+                            inputMode="decimal"
+                        />
+                    </>
+                ) : null}
 
                 <Text className="font-semibold text-lg mt-5 mb-3">Paid by</Text>
 
                 <Dropdown
-                    data={[
-                        { label: "Item 1", value: "1" },
-                        { label: "Item 2", value: "2" },
-                        { label: "Item 3", value: "3" },
-                        { label: "Item 4", value: "4" },
-                        { label: "Item 5", value: "5" },
-                        { label: "Item 6", value: "6" },
-                        { label: "Item 7", value: "7" },
-                        { label: "Item 8", value: "8" },
-                    ]}
+                    data={data}
                     maxHeight={157}
                     labelField="label"
                     valueField="value"
@@ -83,6 +99,7 @@ function index(props) {
                         color: "lightgray",
                         fontSize: 14,
                     }}
+                    selectedTextStyle={{ fontSize: 14 }}
                     placeholder="Select the member who paid"
                     value={value}
                     onChange={(item) => {
@@ -97,23 +114,19 @@ function index(props) {
                 </Text>
 
                 <MultiSelect
-                    data={[
-                        { label: "Item 1", value: "1" },
-                        { label: "Item 2", value: "2" },
-                        { label: "Item 3", value: "3" },
-                        { label: "Item 4", value: "4" },
-                        { label: "Item 5", value: "5" },
-                        { label: "Item 6", value: "6" },
-                        { label: "Item 7", value: "7" },
-                        { label: "Item 8", value: "8" },
-                    ]}
-                    placeholder="Select the members paid for"
+                    data={data}
+                    placeholder={selectedDisplay}
                     labelField="label"
                     valueField="value"
                     value={selected}
                     onChange={(item) => {
                         setSelected(item);
-                        console.log(item);
+                        let commaValue = "";
+                        for (let i = item.length - 1; i >= 0; i--) {
+                            commaValue += item[i];
+                            if (i > 0) commaValue += ", ";
+                        }
+                        setSelectedDisplay(commaValue);
                     }}
                     renderItem={renderMultiSelectItem}
                     maxHeight={157}
@@ -123,11 +136,61 @@ function index(props) {
                         borderBottomWidth: 2,
                     }}
                     placeholderStyle={{
-                        color: "lightgray",
+                        color: selected.length === 0 ? "lightgray" : "black",
                         fontSize: 14,
                     }}
-                    renderSelectedItem={renderSelectedItem}
+                    renderSelectedItem={() => <></>}
                 />
+
+                <View className="flex-row mt-10">
+                    <TouchableOpacity
+                        onPress={() => setEqualSplit(true)}
+                        className={
+                            "flex-1 items-center border-2 " +
+                            (equalSplit ? "bg-black" : "bg-white")
+                        }>
+                        <Text
+                            className={
+                                "p-3 font-semibold " +
+                                (equalSplit ? "text-white" : "text-black")
+                            }>
+                            Split equally
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => setEqualSplit(false)}
+                        className={
+                            "flex-1 items-center border-2 " +
+                            (!equalSplit ? "bg-black" : "bg-white")
+                        }>
+                        <Text
+                            className={
+                                "p-3 font-semibold " +
+                                (!equalSplit ? "text-white" : "text-black")
+                            }>
+                            Custom split
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
+                {equalSplit ? null : (
+                    <View className="flex gap-4 mt-3 mb-20">
+                        <View className="flex-row items-center justify-between">
+                            <View className="flex-1">
+                                <Text className="pr-5" numberOfLines={1}>
+                                    Swoyam
+                                </Text>
+                            </View>
+                            <TextInput
+                                placeholder="Amount"
+                                cursorColor="black"
+                                placeholderTextColor="lightgray"
+                                className="border-black border-b-2 pb-1 flex-1"
+                                inputMode="decimal"
+                            />
+                        </View>
+                    </View>
+                )}
             </ScrollView>
         </>
     );
@@ -139,25 +202,6 @@ function renderItem(item) {
             <Text className="text-md" numberOfLines={1}>
                 {item.label}
             </Text>
-        </View>
-    );
-}
-
-function renderSelectedItem(item) {
-    return (
-        <View className="flex-row mr-2 mt-2" key={index}>
-            <View
-                className="border-2 rounded-full rounded-tr-none rounded-br-none pl-5 pr-3 py-2 flex justify-center"
-                style={{ maxWidth: 120 }}>
-                <Text numberOfLines={1} className="text-md">
-                    {item.label}
-                </Text>
-            </View>
-            <View
-                className="bg-black rounded-full rounded-tl-none rounded-bl-none pl-2 pr-3 py-1 flex justify-center"
-                style={{ maxWidth: 70 }}>
-                <AntDesign name="close" size={15} color="white" />
-            </View>
         </View>
     );
 }
