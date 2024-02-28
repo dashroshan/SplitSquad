@@ -1,12 +1,12 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Dimensions, Image, ScrollView, Text, View } from "react-native";
 import TopBar from "../../../components/TopBar";
 import { getData } from "../../../utils/kvStore";
 
 function ExpenditureItem(props) {
     return (
-        <View className="bg-white m-3 mb-0 rounded-lg flex-row">
+        <View className="bg-white m-3 mt-0 rounded-lg flex-row">
             {/* Spent by */}
             <View className="bg-black w-28 p-2 rounded-lg rounded-tr-none rounded-br-none flex items-center justify-center">
                 <Text
@@ -43,7 +43,7 @@ function ExpenditureItem(props) {
                             <Text
                                 numberOfLines={1}
                                 className="text-xs text-white">
-                                {item.amount}
+                                {Math.round(item.amount * 100) / 100}
                             </Text>
                         </View>
                     </View>
@@ -55,6 +55,7 @@ function ExpenditureItem(props) {
 
 function index(props) {
     const { id } = useLocalSearchParams();
+    const { width } = Dimensions.get("window");
 
     const [details, setDetails] = useState(null);
 
@@ -74,38 +75,7 @@ function index(props) {
     };
 
     const fetchOutingDetails = async () => {
-        //let outingDetails = JSON.parse(await getData(`outing-${id}`));
-        let outingDetails = {
-            name: "Puri trip",
-            members: ["Roshan", "Swoyam", "Soumesh", "Rohan"],
-            payments: [
-                {
-                    by: "Roshan",
-                    description: "Movie tickets",
-                    amount: 450,
-                    for: [
-                        { name: "Swoyam", amount: 150 },
-                        { name: "Roshan", amount: 250 },
-                        { name: "Soumesh", amount: 50 },
-                    ],
-                },
-                {
-                    by: "Soumesh",
-                    description: "Food and drinks",
-                    amount: 2000,
-                    for: [
-                        { name: "Rohan", amount: 1800 },
-                        { name: "Soumesh", amount: 200 },
-                    ],
-                },
-                {
-                    by: "Soumesh",
-                    description: "Rides",
-                    amount: 140,
-                    for: [{ name: "Soumesh", amount: 140 }],
-                },
-            ],
-        };
+        let outingDetails = JSON.parse(await getData(`outing-${id}`));
         let totals = calculateTotals(outingDetails);
         setDetails({ ...outingDetails, ...totals });
     };
@@ -123,54 +93,69 @@ function index(props) {
                 onPress={() => router.navigate(`/outing/${id}/add`)}
             />
             {details === null ? null : (
-                <ScrollView>
-                    {/* Group memebrs and total expenditure */}
-                    <View className="bg-white m-3 mb-0 p-7 px-8 rounded-lg">
-                        {/* Table title */}
-                        <View className="flex-row items-center justify-between pb-2 mb-2 border-b-2">
-                            <Text className="font-semibold text-lg">
-                                Group members
-                            </Text>
-                            <Text className="font-semibold text-lg">Paid</Text>
-                        </View>
-
-                        {/* Members list and expenditure */}
-                        {details.spendingByMember.map((item, index) => (
-                            <View
-                                className="flex-row items-center justify-between"
-                                key={index}>
-                                <Text className="w-[70%]" numberOfLines={1}>
-                                    {item.name}
+                <>
+                    <ScrollView>
+                        {/* Group memebrs and total expenditure */}
+                        <View className="bg-white m-3 mb-0 p-7 px-8 rounded-lg">
+                            {/* Table title */}
+                            <View className="flex-row items-center justify-between pb-2 mb-2 border-b-2">
+                                <Text className="font-semibold text-lg">
+                                    Group members
                                 </Text>
-                                <Text>{item.amount}</Text>
+                                <Text className="font-semibold text-lg">
+                                    Paid
+                                </Text>
                             </View>
-                        ))}
 
-                        {/* Total spending */}
-                        <View className="flex-row items-center justify-between pt-2 mt-2 border-t-2">
-                            <Text>Total spending</Text>
-                            <Text>{details.totalSpending}</Text>
-                        </View>
-                    </View>
+                            {/* Members list and expenditure */}
+                            {details.spendingByMember.map((item, index) => (
+                                <View
+                                    className="flex-row items-center justify-between"
+                                    key={index}>
+                                    <Text className="w-[70%]" numberOfLines={1}>
+                                        {item.name}
+                                    </Text>
+                                    <Text>{item.amount}</Text>
+                                </View>
+                            ))}
 
-                    {/* Expenditure list header */}
-                    <View className="bg-black m-3 mb-0 rounded-lg flex-row">
-                        <View className="w-28 p-2 flex items-center justify-center">
-                            <Text className="text-white font-semibold">
-                                Spending
-                            </Text>
+                            {/* Total spending */}
+                            <View className="flex-row items-center justify-between pt-2 mt-2 border-t-2">
+                                <Text>Total spending</Text>
+                                <Text>{details.totalSpending}</Text>
+                            </View>
                         </View>
-                        <View className="flex-row flex-1 p-3 border-l-2 border-white">
-                            <Text className="text-white font-semibold">
-                                Spent for
-                            </Text>
-                        </View>
-                    </View>
 
-                    {details.payments.map((item, index) => {
-                        return <ExpenditureItem key={index} data={item} />;
-                    })}
-                </ScrollView>
+                        {/* Expenditure list header */}
+                        <View className="bg-black m-3 rounded-lg flex-row">
+                            <View className="w-28 p-2 flex items-center justify-center">
+                                <Text className="text-white font-semibold">
+                                    Spending
+                                </Text>
+                            </View>
+                            <View className="flex-row flex-1 p-3 border-l-2 border-white">
+                                <Text className="text-white font-semibold">
+                                    Spent for
+                                </Text>
+                            </View>
+                        </View>
+
+                        {details.payments.length === 0 ? (
+                            <Image
+                                source={require("../../../assets/emptyList.jpg")}
+                                style={{
+                                    width,
+                                    height: width * 0.676,
+                                    opacity: 0.3,
+                                }}
+                            />
+                        ) : null}
+
+                        {details.payments.map((item, index) => {
+                            return <ExpenditureItem key={index} data={item} />;
+                        })}
+                    </ScrollView>
+                </>
             )}
         </>
     );

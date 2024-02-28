@@ -4,8 +4,8 @@ import { View } from "react-native";
 
 function _layout(props) {
     useEffect(() => {
-        router.navigate("/outing/j06mbo96jn");
-        router.navigate("/outing/j06mbo96jn/add");
+        //router.navigate("/outing/j06mbo96jn");
+        //router.navigate("/outing/j06mbo96jn/add");
         // router.navigate("/newOuting");
     }, []);
     return (

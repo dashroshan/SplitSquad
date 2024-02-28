@@ -4,6 +4,8 @@ import {
     View,
     Text,
     TouchableOpacity,
+    Image,
+    Dimensions,
 } from "react-native";
 import TopBar from "../components/TopBar";
 import { router } from "expo-router";
@@ -37,6 +39,7 @@ function OutingItem(props) {
 function index(props) {
     const [outings, setOutings] = useState([]);
     const [refreshing, setRefreshing] = useState(true);
+    const { width } = Dimensions.get("window");
 
     // Fetch outings from storage
     const fetchOutings = async () => {
@@ -69,23 +72,35 @@ function index(props) {
             />
 
             {/* Outings list */}
-            <View className="flex-1">
-                <FlatList
-                    data={outings}
-                    renderItem={({ item }) => (
-                        <OutingItem
-                            isLast={index == outings.length - 1}
-                            key={item.id}
-                            id={item.id}
-                            name={item.name}
-                            deleteOuting={deleteOuting}
-                        />
-                    )}
-                    keyExtractor={(item) => item.id}
-                    onRefresh={fetchOutings}
-                    refreshing={refreshing}
+
+            {outings.length === 0 ? (
+                <Image
+                    source={require("../assets/emptyList.jpg")}
+                    style={{
+                        width,
+                        height: width * 0.676,
+                        opacity: 0.3,
+                    }}
                 />
-            </View>
+            ) : (
+                <View className="flex-1">
+                    <FlatList
+                        data={outings}
+                        renderItem={({ item }) => (
+                            <OutingItem
+                                isLast={index == outings.length - 1}
+                                key={item.id}
+                                id={item.id}
+                                name={item.name}
+                                deleteOuting={deleteOuting}
+                            />
+                        )}
+                        keyExtractor={(item) => item.id}
+                        onRefresh={fetchOutings}
+                        refreshing={refreshing}
+                    />
+                </View>
+            )}
         </>
     );
 }

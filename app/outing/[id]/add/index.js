@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import {
     Modal,
     Pressable,
@@ -11,22 +11,9 @@ import {
 import TopBar from "../../../../components/TopBar";
 import { AntDesign } from "@expo/vector-icons";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
-import { useState } from "react";
-
-const data = [
-    { label: "Roshan", value: "Roshan" },
-    { label: "Swoyam", value: "Swoyam" },
-    { label: "Rohan", value: "Rohan" },
-    { label: "Soumesh", value: "Soumesh" },
-    { label: "Shreeya", value: "Shreeya" },
-    { label: "Rishabh", value: "Rishabh" },
-    { label: "1Roshan", value: "1Roshan" },
-    { label: "1Swoyam", value: "1Swoyam" },
-    { label: "1Rohan", value: "1Rohan" },
-    { label: "1Soumesh", value: "1Soumesh" },
-    { label: "1Shreeya", value: "1Shreeya" },
-    { label: "1Rishabh", value: "1Rishabh" },
-];
+import { useEffect, useState } from "react";
+import AwesomeAlert from "react-native-awesome-alerts";
+import { getData, storeData } from "../../../../utils/kvStore";
 
 function index(props) {
     const { id } = useLocalSearchParams();
@@ -37,6 +24,11 @@ function index(props) {
         "Select the members paid for"
     );
     const [equalSplit, setEqualSplit] = useState(true);
+    const [amount, setAmount] = useState();
+    const [description, setDescription] = useState();
+    const [customSplitData, setCustomSplitData] = useState({});
+    const [alert, setAlert] = useState({ visible: false, message: "" });
+    const [members, setMembers] = useState([]);
 
     const renderMultiSelectItem = (item) => {
         let isSelected = selected.indexOf(item.value) >= 0;
@@ -54,10 +46,72 @@ function index(props) {
         );
     };
 
+    // Validates all input data and returns error messages
+    const getError = (data) => {
+        if (data.description === undefined || data.description === "")
+            return "Expenditure name is empty...";
+
+        if (!equalSplit)
+            for (let forEntry of data.for) {
+                if (forEntry.amount <= 0)
+                    return "Invalid split amount(s) given...";
+            }
+
+        if (data.amount === undefined || isNaN(data.amount) || data.amount <= 0)
+            return "Invalid amount given...";
+        if (data.by === undefined) return "Paid by not selected...";
+        if (selected.length === 0) return "To be split among not specified...";
+
+        return "";
+    };
+
+    const save = async () => {
+        let data = { by: value, description };
+        let forList = [];
+        if (equalSplit) {
+            data["amount"] = amount;
+            for (let member of selected)
+                forList.push({
+                    name: member,
+                    amount: amount / selected.length,
+                });
+        } else {
+            let amount = 0;
+            Object.entries(customSplitData).forEach(([key, value]) => {
+                forList.push({ name: key, amount: value });
+                amount += value;
+            });
+            data["amount"] = amount;
+        }
+        data["for"] = forList;
+
+        let error = getError(data);
+        if (error === "") {
+            let oldData = JSON.parse(await getData(`outing-${id}`));
+            oldData.payments.unshift(data);
+            await storeData(`outing-${id}`, JSON.stringify(oldData));
+            router.navigate(`/outing/${id}`);
+        } else {
+            setAlert({ visible: true, message: error });
+        }
+    };
+
+    const fetchMemberDetails = async () => {
+        let outingDetails = JSON.parse(await getData(`outing-${id}`));
+        let memData = [];
+        for (let member of outingDetails.members)
+            memData.push({ label: member, value: member });
+        setMembers(memData);
+    };
+
+    useEffect(() => {
+        fetchMemberDetails();
+    }, [id]);
+
     return (
         <>
             {/* Top bar */}
-            <TopBar title="Add new spending" icon="save" />
+            <TopBar title="Add new spending" icon="save" onPress={save} />
 
             <ScrollView className="bg-white m-3 p-7 px-8 rounded-lg">
                 <Text className="font-semibold text-lg">Expenditure name</Text>
@@ -66,6 +120,7 @@ function index(props) {
                     cursorColor="black"
                     placeholderTextColor="lightgray"
                     className="border-black border-b-2 pb-1 my-3"
+                    onChangeText={(text) => setDescription(text)}
                 />
 
                 {equalSplit ? (
@@ -79,6 +134,7 @@ function index(props) {
                             placeholderTextColor="lightgray"
                             className="border-black border-b-2 pb-1 my-3"
                             inputMode="decimal"
+                            onChangeText={(text) => setAmount(parseFloat(text))}
                         />
                     </>
                 ) : null}
@@ -86,7 +142,7 @@ function index(props) {
                 <Text className="font-semibold text-lg mt-5 mb-3">Paid by</Text>
 
                 <Dropdown
-                    data={data}
+                    data={members}
                     maxHeight={157}
                     labelField="label"
                     valueField="value"
@@ -104,7 +160,6 @@ function index(props) {
                     value={value}
                     onChange={(item) => {
                         setValue(item.value);
-                        console.log(item.value);
                     }}
                     renderItem={renderItem}
                 />
@@ -114,18 +169,24 @@ function index(props) {
                 </Text>
 
                 <MultiSelect
-                    data={data}
+                    data={members}
                     placeholder={selectedDisplay}
                     labelField="label"
                     valueField="value"
                     value={selected}
                     onChange={(item) => {
-                        setSelected(item);
                         let commaValue = "";
                         for (let i = item.length - 1; i >= 0; i--) {
                             commaValue += item[i];
                             if (i > 0) commaValue += ", ";
                         }
+                        if (!equalSplit) {
+                            let data = {};
+                            for (let member of item)
+                                data[member] = customSplitData[member] || 0;
+                            setCustomSplitData(data);
+                        }
+                        setSelected(item);
                         setSelectedDisplay(commaValue);
                     }}
                     renderItem={renderMultiSelectItem}
@@ -144,7 +205,10 @@ function index(props) {
 
                 <View className="flex-row mt-10">
                     <TouchableOpacity
-                        onPress={() => setEqualSplit(true)}
+                        onPress={() => {
+                            setEqualSplit(true);
+                            setAmount(null);
+                        }}
                         className={
                             "flex-1 items-center border-2 " +
                             (equalSplit ? "bg-black" : "bg-white")
@@ -158,7 +222,12 @@ function index(props) {
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        onPress={() => setEqualSplit(false)}
+                        onPress={() => {
+                            let data = {};
+                            for (let member of selected) data[member] = 0;
+                            setCustomSplitData(data);
+                            setEqualSplit(false);
+                        }}
                         className={
                             "flex-1 items-center border-2 " +
                             (!equalSplit ? "bg-black" : "bg-white")
@@ -175,23 +244,55 @@ function index(props) {
 
                 {equalSplit ? null : (
                     <View className="flex gap-4 mt-3 mb-20">
-                        <View className="flex-row items-center justify-between">
-                            <View className="flex-1">
-                                <Text className="pr-5" numberOfLines={1}>
-                                    Swoyam
-                                </Text>
+                        {selected.map((item) => (
+                            <View
+                                className="flex-row items-center justify-between"
+                                key={item}>
+                                <View className="flex-1">
+                                    <Text className="pr-5" numberOfLines={1}>
+                                        {item}
+                                    </Text>
+                                </View>
+                                <TextInput
+                                    placeholder="Amount"
+                                    cursorColor="black"
+                                    placeholderTextColor="lightgray"
+                                    className="border-black border-b-2 pb-1 flex-1"
+                                    inputMode="decimal"
+                                    onChangeText={(text) => {
+                                        let data = customSplitData;
+                                        data[item] = parseFloat(text);
+                                        setCustomSplitData(data);
+                                    }}
+                                />
                             </View>
-                            <TextInput
-                                placeholder="Amount"
-                                cursorColor="black"
-                                placeholderTextColor="lightgray"
-                                className="border-black border-b-2 pb-1 flex-1"
-                                inputMode="decimal"
-                            />
-                        </View>
+                        ))}
                     </View>
                 )}
             </ScrollView>
+
+            {/* Alert shown while saving for validation errors */}
+            <AwesomeAlert
+                show={alert.visible}
+                showProgress={false}
+                title="Uhh Oh 😶"
+                message={alert.message}
+                closeOnTouchOutside={true}
+                closeOnHardwareBackPress={true}
+                showConfirmButton={true}
+                confirmText="Continue"
+                confirmButtonColor="black"
+                confirmButtonTextStyle={{
+                    fontSize: 16,
+                    margin: 8,
+                    marginHorizontal: 16,
+                    fontWeight: "700",
+                }}
+                confirmButtonStyle={{ borderRadius: 8 }}
+                onConfirmPressed={() =>
+                    setAlert({ visible: false, message: "" })
+                }
+            />
         </>
     );
 }
