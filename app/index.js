@@ -40,7 +40,7 @@ function index(props) {
                 onPress={() => router.navigate("/newOuting")}
             />
 
-            {outings.length === 0 ? (
+            {outings.length === 0 && !refreshing ? (
                 // Show empty list image if no outings added yet
                 <EmptyList />
             ) : (

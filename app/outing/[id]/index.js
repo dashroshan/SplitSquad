@@ -1,16 +1,19 @@
+import { AntDesign } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import * as Sharing from "expo-sharing";
+import { useEffect, useRef, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import ViewShot from "react-native-view-shot";
 import EmptyList from "../../../components/EmptyList";
 import TopBar from "../../../components/TopBar";
 import { getData } from "../../../utils/kvStore";
 import { ExpenditureItem } from "./ExpenditureItem";
-import getSettlement from "../../../utils/getSettlement";
-import { AntDesign } from "@expo/vector-icons";
 
 function index(props) {
     const { id, name } = useLocalSearchParams();
     const [details, setDetails] = useState(null);
+    const [sharing, setSharing] = useState(false);
+    const shareRef = useRef();
 
     const calculateTotals = (details) => {
         // Calculate total amount paid by each member
@@ -46,6 +49,15 @@ function index(props) {
         // Run once on load
         fetchOutingDetails();
     }, [id]);
+
+    // Share pending settlement details
+    useEffect(() => {
+        if (sharing === true)
+            shareRef.current.capture().then((uri) => {
+                Sharing.shareAsync(uri);
+                setSharing(false);
+            });
+    }, [sharing]);
 
     return (
         <>
@@ -89,85 +101,114 @@ function index(props) {
                             </View>
                         </View>
 
-                        {details.settlements.length > 0 ? (
-                            <View className="bg-white m-3 mb-0 p-7 pt-5 px-8 rounded-lg">
-                                <View className="flex-row items-center justify-between">
-                                    <Text className="font-semibold text-lg">
-                                        Settlements
-                                    </Text>
-                                    <TouchableOpacity
-                                        className="bg-black p-3 px-4 rounded-t-lg"
-                                        children={
-                                            <View className="flex-row gap-1">
-                                                <Text className="text-white text-sm">
-                                                    Share
-                                                </Text>
-                                                <AntDesign
-                                                    name="sharealt"
-                                                    size={20}
-                                                    color="white"
-                                                />
-                                            </View>
-                                        }
-                                    />
-                                </View>
-                                <View className="flex-row items-center pb-2 my-2 mt-0 border-b-2 border-t-2 pt-1">
-                                    <Text className="font-semibold text-sm w-[38%]">
-                                        From
-                                    </Text>
-                                    <Text className="font-semibold text-sm w-[38%]">
-                                        To
-                                    </Text>
-                                    <Text className="font-semibold text-sm w-[24%] text-right">
-                                        Amount
-                                    </Text>
-                                </View>
-                                {details.settlements.map((item, index) => (
-                                    <View
-                                        className="flex-row items-center"
-                                        key={index}>
+                        <ViewShot
+                            ref={shareRef}
+                            options={{
+                                fileName: (name || details?.name) + " - ",
+                                format: "png",
+                                quality: 1,
+                            }}
+                            className="bg-gray-200">
+                            {details.settlements.length > 0 ? (
+                                <View className="bg-white m-3 mb-0 p-7 pt-5 px-8 rounded-lg">
+                                    <View className="flex-row items-center justify-between">
                                         <Text
-                                            className="text-sm w-[38%] pr-2"
+                                            className={
+                                                "font-semibold text-lg " +
+                                                (sharing ? "mt-1" : "")
+                                            }
                                             numberOfLines={1}>
-                                            {item.from}
+                                            {sharing
+                                                ? "Pending payments"
+                                                : "Settlements"}
                                         </Text>
-                                        <Text
-                                            className="text-sm w-[38%] pr-2"
-                                            numberOfLines={1}>
-                                            {item.to}
+                                        <TouchableOpacity
+                                            className={
+                                                "bg-black p-3 px-4 rounded-t-lg " +
+                                                (sharing ? "hidden" : "")
+                                            }
+                                            onPress={() => setSharing(true)}
+                                            children={
+                                                <View className="flex-row gap-1">
+                                                    <Text className="text-white text-sm">
+                                                        Share
+                                                    </Text>
+                                                    <AntDesign
+                                                        name="sharealt"
+                                                        size={20}
+                                                        color="white"
+                                                    />
+                                                </View>
+                                            }
+                                        />
+                                    </View>
+                                    {sharing ? (
+                                        <Text className="mb-3">
+                                            For - {name || details?.name}
                                         </Text>
-                                        <Text
-                                            className="text-sm w-[24%] text-right"
-                                            numberOfLines={1}>
-                                            {Math.round(item.amount * 100) /
-                                                100}
+                                    ) : null}
+                                    <View className="flex-row items-center pb-2 my-2 mt-0 border-b-2 border-t-2 pt-1">
+                                        <Text className="font-semibold text-sm w-[38%]">
+                                            From
+                                        </Text>
+                                        <Text className="font-semibold text-sm w-[38%]">
+                                            To
+                                        </Text>
+                                        <Text className="font-semibold text-sm w-[24%] text-right">
+                                            Amount
                                         </Text>
                                     </View>
-                                ))}
-                            </View>
-                        ) : null}
+                                    {details.settlements.map((item, index) => (
+                                        <View
+                                            className="flex-row items-center"
+                                            key={index}>
+                                            <Text
+                                                className="text-sm w-[38%] pr-2"
+                                                numberOfLines={1}>
+                                                {item.from}
+                                            </Text>
+                                            <Text
+                                                className="text-sm w-[38%] pr-2"
+                                                numberOfLines={1}>
+                                                {item.to}
+                                            </Text>
+                                            <Text
+                                                className="text-sm w-[24%] text-right"
+                                                numberOfLines={1}>
+                                                {Math.round(item.amount * 100) /
+                                                    100}
+                                            </Text>
+                                        </View>
+                                    ))}
+                                </View>
+                            ) : null}
 
-                        {/* Expenditure list header */}
-                        <View className="bg-black m-3 rounded-lg flex-row">
-                            <View className="w-28 p-2 flex items-center justify-center">
-                                <Text className="text-white font-semibold">
-                                    Spending
-                                </Text>
+                            {/* Expenditure list header */}
+                            <View className="bg-black m-3 rounded-lg flex-row">
+                                <View className="w-28 p-2 flex items-center justify-center">
+                                    <Text className="text-white font-semibold">
+                                        Spending
+                                    </Text>
+                                </View>
+                                <View className="flex-row flex-1 p-3 border-l-2 border-white">
+                                    <Text className="text-white font-semibold">
+                                        Spent for
+                                    </Text>
+                                </View>
                             </View>
-                            <View className="flex-row flex-1 p-3 border-l-2 border-white">
-                                <Text className="text-white font-semibold">
-                                    Spent for
-                                </Text>
-                            </View>
-                        </View>
 
-                        {/* Show empty list image if no payments data added yet */}
-                        {details.payments.length === 0 ? <EmptyList /> : null}
+                            {/* Show empty list image if no payments data added yet */}
+                            {details.payments.length === 0 ? (
+                                <EmptyList />
+                            ) : null}
 
-                        {/* Expenditure list */}
-                        {details.payments.map((item, index) => {
-                            return <ExpenditureItem key={index} data={item} />;
-                        })}
+                            {/* Expenditure list */}
+                            {details.payments.map((item, index) => {
+                                return (
+                                    <ExpenditureItem key={index} data={item} />
+                                );
+                            })}
+                        </ViewShot>
                     </ScrollView>
                 </>
             )}
