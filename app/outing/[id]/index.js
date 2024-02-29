@@ -51,7 +51,7 @@ function index(props) {
         <>
             {/* Top bar */}
             <TopBar
-                title={name}
+                title={name || details?.name}
                 icon="plus"
                 onPress={() => router.navigate(`/outing/${id}/add`)}
             />
@@ -90,11 +90,28 @@ function index(props) {
                         </View>
 
                         {details.settlements.length > 0 ? (
-                            <View className="bg-white m-3 mb-0 p-7 px-8 rounded-lg">
-                                <Text className="font-semibold text-lg">
-                                    Payments to settle up
-                                </Text>
-                                <View className="flex-row items-center pb-2 my-2 border-b-2 border-t-2 pt-1">
+                            <View className="bg-white m-3 mb-0 p-7 pt-5 px-8 rounded-lg">
+                                <View className="flex-row items-center justify-between">
+                                    <Text className="font-semibold text-lg">
+                                        Settlements
+                                    </Text>
+                                    <TouchableOpacity
+                                        className="bg-black p-3 px-4 rounded-t-lg"
+                                        children={
+                                            <View className="flex-row gap-1">
+                                                <Text className="text-white text-sm">
+                                                    Share
+                                                </Text>
+                                                <AntDesign
+                                                    name="sharealt"
+                                                    size={20}
+                                                    color="white"
+                                                />
+                                            </View>
+                                        }
+                                    />
+                                </View>
+                                <View className="flex-row items-center pb-2 my-2 mt-0 border-b-2 border-t-2 pt-1">
                                     <Text className="font-semibold text-sm w-[38%]">
                                         From
                                     </Text>
