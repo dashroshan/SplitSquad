@@ -3,7 +3,7 @@ import { AntDesign } from "@expo/vector-icons";
 
 function TopBar(props) {
     return (
-        <View className="h-28 bg-black items-center justify-between pt-10 px-7 flex-row">
+        <View className="h-28 bg-black items-center justify-between pt-8 px-7 flex-row">
             {/* Title */}
             <Text
                 numberOfLines={1}
