@@ -12,7 +12,12 @@ export function OutingItem(props) {
             <Text
                 numberOfLines={1}
                 className="w-[80%] py-6"
-                onPress={() => router.navigate(`/outing/${props.id}`)}>
+                onPress={() =>
+                    router.navigate({
+                        pathname: `/outing/${props.id}`,
+                        params: { name: props.name },
+                    })
+                }>
                 {props.name}
             </Text>
 

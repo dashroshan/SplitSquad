@@ -96,7 +96,10 @@ function index(props) {
             oldData.payments.unshift(data);
             oldData.settlements = getSettlement(oldData);
             await storeData(`outing-${id}`, JSON.stringify(oldData));
-            router.navigate(`/outing/${id}`);
+            router.navigate({
+                pathname: `/outing/${id}`,
+                params: { name: oldData.name },
+            });
         } else {
             // Show alert for validation errors
             setAlert({ visible: true, message: error });

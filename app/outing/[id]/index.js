@@ -9,7 +9,7 @@ import getSettlement from "../../../utils/getSettlement";
 import { AntDesign } from "@expo/vector-icons";
 
 function index(props) {
-    const { id } = useLocalSearchParams();
+    const { id, name } = useLocalSearchParams();
     const [details, setDetails] = useState(null);
 
     const calculateTotals = (details) => {
@@ -51,7 +51,7 @@ function index(props) {
         <>
             {/* Top bar */}
             <TopBar
-                title={details?.name}
+                title={name}
                 icon="plus"
                 onPress={() => router.navigate(`/outing/${id}/add`)}
             />
