@@ -2,6 +2,8 @@
 
 **Track & split group bills with ease** 💵😎
 
+[![](./SplitSquad_Download.png)](https://github.com/dashroshan/SplitSquad/releases/latest)
+
 ![](./SplitSquad_Banner.jpg)
 
 No more fussing with change, misplaced receipts, or arguments about your group's expenditures. Simply enter your spending, and SplitSquad will show you who owes how much to whom. Ideal for vacations, house sharing, trips, and organizing large parties or events with multiple people.
