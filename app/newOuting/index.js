@@ -117,11 +117,11 @@ function index(props) {
     return (
         <>
             {/* Top bar */}
-            <TopBar title="Add new outing" icon="save" onPress={save} />
+            <TopBar title="Create new group" icon="save" onPress={save} />
 
             <ScrollView className="bg-white m-3 p-7 px-8 rounded-lg">
                 {/* Outing name */}
-                <Text className="font-semibold text-lg">Outing name</Text>
+                <Text className="font-semibold text-lg">Group name</Text>
                 <TextInput
                     onChangeText={(text) => setData({ ...data, name: text })}
                     value={data.name}

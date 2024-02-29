@@ -1,8 +1,8 @@
 {
     "expo": {
-        "name": "fair-share",
-        "slug": "fair-share",
-        "scheme": "fair-share",
+        "name": "SplitSquad",
+        "slug": "split-squad",
+        "scheme": "split-squad",
         "version": "1.0.0",
         "orientation": "portrait",
         "icon": "./assets/icon.png",
@@ -19,7 +19,7 @@
         "android": {
             "adaptiveIcon": {
                 "foregroundImage": "./assets/adaptive-icon.png",
-                "backgroundColor": "#ffffff"
+                "backgroundColor": "#000000"
             }
         },
         "web": {

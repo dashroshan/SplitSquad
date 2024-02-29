@@ -36,7 +36,7 @@ function index(props) {
             {/* Top bar */}
             <TopBar
                 icon="plus"
-                title="FairShare"
+                title="SplitSquad"
                 onPress={() => router.navigate("/newOuting")}
             />
 
