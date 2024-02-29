@@ -8,6 +8,13 @@ node_modules/
 dist/
 web-build/
 
+# Prebuilds
+android/
+
+# Secrets
+*.keystore
+*.password
+
 # Native
 *.orig.*
 *.jks

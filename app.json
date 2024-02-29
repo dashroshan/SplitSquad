@@ -19,8 +19,9 @@
         "android": {
             "adaptiveIcon": {
                 "foregroundImage": "./assets/adaptive-icon.png",
-                "backgroundColor": "#000000"
-            }
+                "backgroundColor": "#1e1e1e"
+            },
+            "package": "com.dashroshan.splitsquad"
         },
         "web": {
             "favicon": "./assets/favicon.png"
