@@ -12,6 +12,7 @@ import AlertModal from "../../../../components/AlertModal";
 import TopBar from "../../../../components/TopBar";
 import { getData, storeData } from "../../../../utils/kvStore";
 import { renderItem } from "./renderItem";
+import getSettlement from "../../../../utils/getSettlement";
 
 function index(props) {
     const { id } = useLocalSearchParams();
@@ -93,6 +94,7 @@ function index(props) {
             // If no error, add the expenditure data to the outing data, and go back to outing screen
             let oldData = JSON.parse(await getData(`outing-${id}`));
             oldData.payments.unshift(data);
+            oldData.settlements = getSettlement(oldData);
             await storeData(`outing-${id}`, JSON.stringify(oldData));
             router.navigate(`/outing/${id}`);
         } else {

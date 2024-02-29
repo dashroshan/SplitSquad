@@ -90,7 +90,12 @@ function index(props) {
             // On all valid inputs
             let id = (Math.random() + 1).toString(36).substring(2); // generate a random string for id
             let newOutingData = { id, name };
-            let outingDetails = { name, members, payments: [] };
+            let outingDetails = {
+                name,
+                members,
+                payments: [],
+                settlements: [],
+            };
 
             // Get old saved data
             let oldData = await getData("outingData");

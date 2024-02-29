@@ -4,7 +4,7 @@ import { View } from "react-native";
 
 function _layout(props) {
     useEffect(() => {
-        router.navigate("/outing/pknh2dhnr"); //515hftve9t");
+        //router.navigate("/outing/pknh2dhnr"); //515hftve9t");
         //router.navigate("/outing/j06mbo96jn/add");
         // router.navigate("/newOuting");
     }, []);

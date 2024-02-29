@@ -35,15 +35,10 @@ function index(props) {
         // Get saved details for the outing and add data of total amount paid by each member to it
         let outingDetails = JSON.parse(await getData(`outing-${id}`));
         let totals = calculateTotals(outingDetails);
-        let settlements = [];
-
-        if (outingDetails.payments.length > 0)
-            settlements = getSettlement(outingDetails);
 
         setDetails({
             ...outingDetails,
             ...totals,
-            settlements,
         });
     };
 
